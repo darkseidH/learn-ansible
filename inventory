@@ -1,5 +1,10 @@
+[ubuntu]
 192.168.124.223
+[fedora]
+192.168.124.41
 
-
-[all:vars]
+[ubuntu:vars]
 ansible_user=srv-3
+
+[fedora:vars]
+ansible_user=srv-2
