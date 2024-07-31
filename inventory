@@ -1,3 +1,5 @@
 192.168.124.223
+
+
 [all:vars]
 ansible_user=srv-3
