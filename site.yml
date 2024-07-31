@@ -1,7 +1,7 @@
 ---
 - hosts: all
   become: true
-  tasks:
+  pre_tasks:
     
     - name: Install update for Fedora
       tags: always
@@ -16,6 +16,27 @@
         upgrade: dist
         update_cache: yes
       when: ansible_distribution == "Ubuntu"
+    
+    - name: Create user
+      tags: always
+      ansible.builtin.user:
+        name: dark
+        groups: root
+    
+    - name: add sudoers file for dark
+      tags: always
+      ansible.builtin.copy:
+        src: sudoer_dark
+        dest: /etc/sudoers.d/dark
+        owner: root
+        group: root
+        mode: 0440
+          
+    - name: add ssh key for dark user
+      tags: always
+      ansible.builtin.authorized_key:
+        user: dark
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB9qgPkWYpOMLEn7n6Dp7WMplFpeomdHyyIi/N/PJiMO darkseid@darkseid-pc"
 
 - hosts: web_servers
   become: true
@@ -28,6 +49,15 @@
           - apache2
           - libapache2-mod-php
       when: ansible_distribution == "Ubuntu"
+
+    - name: copy html file for site
+      tags: apache, ubuntu
+      ansible.builtin.copy:
+        src: default_site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644
 
 - hosts: db_servers
   become: true
