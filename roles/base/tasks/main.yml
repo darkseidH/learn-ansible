@@ -1,0 +1,20 @@
+- name: Create user
+  tags: always
+  anisble.builtin.user:
+    name: dark
+    groups: root
+
+- name: Add sudoers file for dark
+  tags: always
+  ansible.builtin.copy:
+    src: sudoer_dark
+    dest: /etc/sudoers.d/dark
+    owner: root
+    group: root
+    mode: 0440
+
+- name: Add ssh key for dark user
+  tags: always
+  ansible.builtin.authorized_key:
+    user: dark
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOfLPipSl8ZM0Lx1Z3FoqAIQA2KYDXV3M8N2/eXsRRmh srv-1@srv-1"

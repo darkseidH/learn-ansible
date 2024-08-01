@@ -16,8 +16,7 @@
         upgrade: dist
         update_cache: yes
       when: ansible_distribution == "Ubuntu"
-    
-    - name: Create user
+        - name: Create user
       tags: always
       ansible.builtin.user:
         name: dark
@@ -36,19 +35,58 @@
       tags: always
       ansible.builtin.authorized_key:
         user: dark
-        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB9qgPkWYpOMLEn7n6Dp7WMplFpeomdHyyIi/N/PJiMO darkseid@darkseid-pc"
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOfLPipSl8ZM0Lx1Z3FoqAIQA2KYDXV3M8N2/eXsRRmh srv-1@srv-1"
 
 - hosts: web_servers
   become: true
   tasks:
   
-    - name: Install apache for web servers
+    - name: Install apache for web servers (Ubuntu)
       tags: apache,ubuntu
       ansible.builtin.apt:
         name:
           - apache2
           - libapache2-mod-php
       when: ansible_distribution == "Ubuntu"
+
+    - name: Install apache for web servers (Fedora)
+      tags: apache,fedora
+      ansible.builtin.dnf:
+        name:
+          - httpd
+      when: ansible_distribution == "Fedora"
+
+    - name: Ensure apache is running(Ubuntu)
+      tags: apache,ubuntu
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: true
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Ensure apache is running(Fedora)
+      tags: apache,fedora
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+      when: ansible_distribution == "Fedora"
+    
+    - name: change email address for admin
+      tags: apache,fedora
+      ansible.builtin.lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^ServerAdmin'
+        line: ServerAdmin demo@example.org
+      when: ansible_distribution == "Fedora"
+      register: httpd
+    
+    - name: Restart http server
+      tags: apache,fedora
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
+      when: httpd.changed  
 
     - name: copy html file for site
       tags: apache, ubuntu
@@ -63,7 +101,7 @@
   become: true
   tasks:
     
-    - name: Install mariadb package on db servers
+    - name: Install mariadb package on db servers (Fedora)
       tags: fedora,db
       ansible.builtin.dnf:
         name:

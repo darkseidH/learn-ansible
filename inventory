@@ -1,11 +1,12 @@
 [web_servers]
 192.168.124.223
+192.168.124.41
 
 [db_servers]
 192.168.124.41
 
-[web_servers:vars]
-ansible_user=srv-3
+#[web_servers:vars]
+#ansible_user=srv-3
 
-[db_servers:vars]
-ansible_user=srv-2
+#[db_servers:vars]
+#ansible_user=srv-2
